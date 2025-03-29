@@ -1,2 +1,1 @@
-# SastaMario
-simple 2d platedformer
+Superfast Pac-Man
