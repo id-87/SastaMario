@@ -2,23 +2,72 @@
 <html>
 <head>
     <title>Pac-Man</title>
-    <style src="style.css">
-        
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: black;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+        }
+        #score {
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 24px;
+            padding: 10px;
+            text-align: center;
+        }
+        #gameCanvas {
+            display: block;
+            margin: 0 auto;
+            flex-grow: 1;
+        }
     </style>
 </head>
 <body>
     <div id="score">Score: 0</div>
-    <canvas id="gameCanvas" width="400" height="450"></canvas>
+    <canvas id="gameCanvas"></canvas>
 
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const scoreElement = document.getElementById('score');
 
+        // Set canvas to full screen
+        function resizeCanvas() {
+            // Keep aspect ratio of the original game (400x450)
+            const aspectRatio = 400 / 450;
+            
+            // Calculate the maximum size that fits the screen while maintaining aspect ratio
+            let canvasWidth, canvasHeight;
+            
+            // Use the smaller dimension to determine size
+            if (window.innerWidth / window.innerHeight < aspectRatio) {
+                // Width constrained
+                canvasWidth = window.innerWidth;
+                canvasHeight = canvasWidth / aspectRatio;
+            } else {
+                // Height constrained
+                canvasHeight = window.innerHeight - scoreElement.offsetHeight;
+                canvasWidth = canvasHeight * aspectRatio;
+            }
+            
+            // Set canvas dimensions
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+        }
+        
+        // Call resize on load and when window is resized
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
         // Game variables
         let score = 0;
-        const gridSize = 20;
-        const tileCount = canvas.width / gridSize;
+        let gridSize; // Will be calculated based on canvas size
+        let tileCount = 20; // Fixed number of tiles horizontally
         const pacman = {
             x: 10,
             y: 15,
@@ -163,6 +212,11 @@
             ctx.fillStyle = 'black';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
+            // Calculate grid size based on current canvas dimensions
+            gridSize = canvas.width / tileCount;
+            // Update pacman radius based on grid size
+            pacman.radius = gridSize / 2 - 2;
+            
             // Draw maze
             for (let y = 0; y < maze.length; y++) {
                 for (let x = 0; x < maze[y].length; x++) {
@@ -259,6 +313,15 @@
 
         // Start game
         gameLoop();
+        
+        // Handle fullscreen
+        document.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error attempting to enable fullscreen: ${err.message}`);                
+                });
+            }
+        });
     </script>
 </body>
 </html>
